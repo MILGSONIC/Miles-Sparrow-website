@@ -1,9 +1,9 @@
 name = "miles-sparrow-website"
 compatibility_date = "2026-03-20"
-main = "worker.js"
 
 [assets]
-directory = "./"
+directory = "./public"
+not_found_handling = "single-page-application"
 
 [observability.logs]
 enabled = true
