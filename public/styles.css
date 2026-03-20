@@ -1,6 +1,6 @@
 :root {
-  --bg: #f6efe3;
-  --surface: rgba(255, 251, 245, 0.82);
+  --bg: #f5eedf;
+  --surface: rgba(255, 252, 246, 0.86);
   --surface-strong: #fffaf1;
   --ink: #1f2230;
   --muted: #5f6478;
@@ -8,7 +8,8 @@
   --gold: #f1a208;
   --coral: #ef6f6c;
   --teal: #2d9c95;
-  --shadow: 0 20px 50px rgba(49, 39, 24, 0.16);
+  --berry: #8b5cf6;
+  --shadow: 0 22px 56px rgba(49, 39, 24, 0.16);
 }
 
 * {
@@ -23,13 +24,18 @@ body {
   background:
     radial-gradient(circle at top left, rgba(241, 162, 8, 0.24), transparent 30%),
     radial-gradient(circle at top right, rgba(45, 156, 149, 0.18), transparent 35%),
-    linear-gradient(180deg, #f9f3ea 0%, #f6efe3 48%, #efe4d2 100%);
+    linear-gradient(180deg, #fbf6ee 0%, #f6efe3 44%, #ecdfca 100%);
 }
 
 button,
 input,
 select {
   font: inherit;
+}
+
+button,
+select {
+  appearance: none;
 }
 
 .page-shell {
@@ -70,7 +76,7 @@ select {
 
 .hero {
   display: grid;
-  grid-template-columns: 1.3fr 0.9fr;
+  grid-template-columns: 1.15fr 0.85fr;
   gap: 24px;
   align-items: stretch;
 }
@@ -79,7 +85,7 @@ select {
 .hero-panel,
 .board {
   position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.58);
   background: var(--surface);
   backdrop-filter: blur(18px);
   box-shadow: var(--shadow);
@@ -91,7 +97,8 @@ select {
 }
 
 .hero-copy h1,
-.section-heading h2 {
+.section-heading h2,
+.selector-heading h2 {
   margin: 0;
   font-family: "Abril Fatface", serif;
   font-weight: 400;
@@ -100,7 +107,7 @@ select {
 }
 
 .hero-copy h1 {
-  max-width: 10ch;
+  max-width: 11ch;
   font-size: clamp(3rem, 5vw, 5.2rem);
 }
 
@@ -121,6 +128,74 @@ select {
   color: var(--coral);
 }
 
+.selector-panel {
+  margin-top: 30px;
+  padding: 22px;
+  border-radius: 28px;
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.8), rgba(255, 248, 237, 0.64)),
+    repeating-linear-gradient(
+      135deg,
+      rgba(139, 92, 246, 0.04),
+      rgba(139, 92, 246, 0.04) 10px,
+      transparent 10px,
+      transparent 24px
+    );
+  border: 1px solid rgba(31, 34, 48, 0.08);
+}
+
+.dashboard-switcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.profile-card {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 18px;
+  border-radius: 22px;
+  border: 1px solid rgba(31, 34, 48, 0.1);
+  background: rgba(255, 255, 255, 0.88);
+  text-align: left;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.profile-card:hover,
+.primary-button:hover,
+.ghost-button:hover,
+.delete-button:hover {
+  transform: translateY(-2px);
+}
+
+.profile-card.active {
+  border-color: rgba(45, 156, 149, 0.4);
+  box-shadow: 0 16px 32px rgba(45, 156, 149, 0.12);
+}
+
+.profile-card.parent-card {
+  background: linear-gradient(135deg, rgba(241, 162, 8, 0.18), rgba(255, 255, 255, 0.9));
+}
+
+.profile-age,
+.profile-role,
+.panel-topline,
+.progress-label,
+.quest-summary span,
+.mini-panel span,
+.kid-summary-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.profile-name {
+  font-size: 1.15rem;
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
@@ -131,18 +206,19 @@ select {
 .primary-button,
 .ghost-button,
 .delete-button,
-.task-toggle {
-  border: 0;
-  cursor: pointer;
-  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+.task-toggle,
+.profile-card {
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease, opacity 160ms ease;
 }
 
 .primary-button,
 .ghost-button,
 .delete-button {
+  border: 0;
   border-radius: 999px;
   padding: 14px 20px;
   font-weight: 800;
+  cursor: pointer;
 }
 
 .primary-button {
@@ -152,7 +228,7 @@ select {
 }
 
 .ghost-button {
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.72);
   color: var(--ink);
   border: 1px solid var(--line);
 }
@@ -167,23 +243,22 @@ select {
 
 .panel-topline,
 .progress-label,
-.quest-summary span,
 .mini-panel span {
   display: flex;
   justify-content: space-between;
   gap: 12px;
-  color: var(--muted);
-  font-size: 0.92rem;
 }
 
-.score-grid {
+.score-grid,
+.profile-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
 
 .score-card,
-.mini-panel {
+.mini-panel,
+.kid-summary-card {
   background: var(--surface-strong);
   border: 1px solid var(--line);
   border-radius: 22px;
@@ -192,7 +267,8 @@ select {
 
 .score-card p,
 .score-card strong,
-.mini-panel strong {
+.mini-panel strong,
+.kid-summary-card strong {
   margin: 0;
 }
 
@@ -205,6 +281,12 @@ select {
 .mini-panel strong {
   font-size: 1.5rem;
   line-height: 1.1;
+}
+
+.kid-summary-card {
+  display: grid;
+  gap: 6px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.92), rgba(255, 244, 227, 0.76));
 }
 
 .progress-track {
@@ -231,6 +313,23 @@ select {
   font-weight: 700;
 }
 
+.dashboard {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 0.95fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.board {
+  border-radius: 30px;
+  padding: 28px;
+}
+
+.section-heading h2,
+.selector-heading h2 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+}
+
 .access-banner {
   margin-top: 20px;
   padding: 14px 16px;
@@ -248,20 +347,8 @@ select {
   color: #1c635f;
 }
 
-.dashboard {
-  display: grid;
-  grid-template-columns: 0.95fr 1.3fr 0.8fr;
-  gap: 24px;
-  margin-top: 24px;
-}
-
-.board {
-  border-radius: 30px;
-  padding: 28px;
-}
-
-.section-heading h2 {
-  font-size: clamp(2rem, 3vw, 2.8rem);
+.board-locked .task-form {
+  opacity: 0.55;
 }
 
 .task-form {
@@ -270,14 +357,16 @@ select {
   margin-top: 20px;
 }
 
-.task-form label {
+.task-form label,
+.credit-label {
   display: grid;
   gap: 10px;
   font-weight: 700;
 }
 
 .task-form input,
-.task-form select {
+.task-form select,
+.task-credit-row select {
   width: 100%;
   padding: 15px 16px;
   border: 1px solid var(--line);
@@ -287,7 +376,9 @@ select {
 }
 
 .task-form input:focus,
-.task-form select:focus {
+.task-form select:focus,
+.task-credit-row select:focus,
+.pin-modal-card input:focus {
   border-color: rgba(45, 156, 149, 0.55);
   box-shadow: 0 0 0 4px rgba(45, 156, 149, 0.12);
 }
@@ -317,6 +408,10 @@ select {
 .currency-input input {
   border: 0;
   background: transparent;
+}
+
+.is-hidden {
+  opacity: 0.4;
 }
 
 .quest-summary {
@@ -356,14 +451,6 @@ select {
   border-radius: 24px;
   background: rgba(255, 255, 255, 0.72);
   border: 1px solid rgba(31, 34, 48, 0.09);
-  transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
-}
-
-.task-card:hover,
-.primary-button:hover,
-.ghost-button:hover,
-.delete-button:hover {
-  transform: translateY(-2px);
 }
 
 .task-card.completed {
@@ -378,17 +465,7 @@ select {
   border: 2px solid rgba(31, 34, 48, 0.22);
   background: white;
   position: relative;
-}
-
-.task-toggle:disabled,
-.delete-button:disabled,
-.task-form button:disabled,
-.task-form input:disabled,
-.task-form select:disabled,
-.hero-actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
-  transform: none;
+  cursor: pointer;
 }
 
 .task-card.completed .task-toggle {
@@ -405,7 +482,8 @@ select {
 }
 
 .task-topline,
-.task-meta {
+.task-meta,
+.task-credit-row {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -433,7 +511,9 @@ select {
 }
 
 .difficulty-pill,
-.xp-pill {
+.xp-pill,
+.scope-pill,
+.credit-pill {
   display: inline-flex;
   align-items: center;
   border-radius: 999px;
@@ -452,14 +532,41 @@ select {
   color: #156864;
 }
 
+.scope-pill {
+  background: rgba(139, 92, 246, 0.12);
+  color: #5f3db8;
+}
+
+.credit-pill {
+  background: rgba(31, 34, 48, 0.08);
+  color: var(--muted);
+}
+
+.task-credit-row {
+  margin-top: 12px;
+}
+
+.credit-label {
+  min-width: 220px;
+}
+
+.credit-label select {
+  padding-block: 10px;
+}
+
 .delete-button {
   background: transparent;
   color: var(--muted);
   padding-inline: 8px;
 }
 
+.family-grid-panel {
+  display: grid;
+  gap: 14px;
+}
+
 .ledger {
-  min-height: 220px;
+  min-height: 260px;
 }
 
 #ledger-list {
@@ -538,11 +645,6 @@ select {
   outline: none;
 }
 
-.pin-modal-card input:focus {
-  border-color: rgba(45, 156, 149, 0.55);
-  box-shadow: 0 0 0 4px rgba(45, 156, 149, 0.12);
-}
-
 .pin-copy {
   color: var(--muted);
   line-height: 1.6;
@@ -558,6 +660,10 @@ select {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+[hidden] {
+  display: none !important;
 }
 
 @media (max-width: 1040px) {
@@ -583,9 +689,11 @@ select {
     font-size: clamp(2.4rem, 12vw, 4rem);
   }
 
+  .dashboard-switcher,
   .form-row,
   .quest-summary,
-  .score-grid {
+  .score-grid,
+  .profile-grid {
     grid-template-columns: 1fr;
   }
 
