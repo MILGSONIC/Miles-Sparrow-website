@@ -71,6 +71,8 @@ const pageConfigs = {
       { id: "storybook", label: "Storybook Meadow" },
       { id: "lantern", label: "Lantern Hall" },
       { id: "starlit", label: "Starlit Quest" },
+      { id: "celestial", label: "Celestial Canopy" },
+      { id: "festival", label: "Festival Banners" },
     ],
   },
   parent: {
@@ -81,6 +83,8 @@ const pageConfigs = {
       { id: "command", label: "Command Table" },
       { id: "library", label: "Map Library" },
       { id: "warden", label: "Warden's Desk" },
+      { id: "archive", label: "Archive Parchment" },
+      { id: "royal", label: "Royal Command" },
     ],
   },
   miles: {
@@ -92,6 +96,8 @@ const pageConfigs = {
       { id: "ember", label: "Ember Banner" },
       { id: "forge", label: "Forge Run" },
       { id: "storm", label: "Storm Trail" },
+      { id: "lava", label: "Lava Champion" },
+      { id: "thunder", label: "Thunder Standard" },
     ],
   },
   logan: {
@@ -103,6 +109,8 @@ const pageConfigs = {
       { id: "grove", label: "Grove Scout" },
       { id: "river", label: "River Camp" },
       { id: "glow", label: "Glow Quest" },
+      { id: "ranger", label: "Forest Ranger" },
+      { id: "creek", label: "Creek Camp" },
     ],
   },
   zoe: {
@@ -114,6 +122,8 @@ const pageConfigs = {
       { id: "petal", label: "Petal Parade" },
       { id: "cloud", label: "Cloud Castle" },
       { id: "sunbeam", label: "Sunbeam Sprites" },
+      { id: "moon", label: "Moon Garden" },
+      { id: "carnival", label: "Fairytale Carnival" },
     ],
   },
 };
@@ -165,12 +175,23 @@ const rankTitles = [
   "Legend of the Living Room",
 ];
 
+const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+const homePreviewCache = new Map();
+
 const state = loadState();
 const templatePrefs = loadTemplatePrefs();
 const widgetStylePrefs = loadWidgetStylePrefs();
 const parentAccess = {
   unlocked: sessionStorage.getItem(PARENT_SESSION_KEY) === "true",
 };
+
+applyPerformanceMode();
+
+if (typeof reducedMotionQuery.addEventListener === "function") {
+  reducedMotionQuery.addEventListener("change", applyPerformanceMode);
+} else if (typeof reducedMotionQuery.addListener === "function") {
+  reducedMotionQuery.addListener(applyPerformanceMode);
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   const pageId = document.body.dataset.page;
@@ -199,6 +220,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   renderDashboardPage(pageConfig);
 });
+
+function getPerformanceMode() {
+  if (reducedMotionQuery.matches) {
+    return "reduced";
+  }
+
+  const { hardwareConcurrency, deviceMemory } = navigator;
+  const limitedCpu = Number.isFinite(hardwareConcurrency) && hardwareConcurrency <= 4;
+  const limitedMemory = Number.isFinite(deviceMemory) && deviceMemory <= 4;
+
+  return limitedCpu || limitedMemory ? "reduced" : "default";
+}
+
+function applyPerformanceMode() {
+  const mode = getPerformanceMode();
+  document.documentElement.dataset.performance = mode;
+
+  if (document.body) {
+    document.body.dataset.performance = mode;
+  }
+}
 
 function loadState() {
   const saved = localStorage.getItem(STORAGE_KEY);
@@ -255,6 +297,7 @@ function migrateState(parsed) {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  homePreviewCache.clear();
 }
 
 function loadTemplatePrefs() {
@@ -466,7 +509,7 @@ function renderHomePage() {
           <article class="story-card story-card-magic reveal rise-4">
             <div class="story-card-copy">
               <p class="eyebrow">Template Magic</p>
-              <h2>Each page keeps three looks</h2>
+              <h2>Each page keeps ${templates.length} looks</h2>
               <p>Each realm remembers its own style and card skin.</p>
             </div>
             <div class="story-card-ornament" aria-hidden="true">
@@ -557,16 +600,59 @@ function renderHomePreview(pageId) {
     return;
   }
 
+  const stateKey = getHomePreviewStateKey();
+  if (panel.dataset.previewPage === pageId && panel.dataset.previewStateKey === stateKey) {
+    return;
+  }
+
+  if (!homePreviewCache.has(stateKey)) {
+    homePreviewCache.clear();
+    homePreviewCache.set(stateKey, new Map());
+  }
+
+  const previewStateCache = homePreviewCache.get(stateKey);
+
+  if (!previewStateCache.has(pageId)) {
+    previewStateCache.set(pageId, buildHomePreviewMarkup(pageId));
+  }
+
+  panel.innerHTML = previewStateCache.get(pageId);
+  panel.dataset.previewPage = pageId;
+  panel.dataset.previewStateKey = stateKey;
+}
+
+function getHomePreviewStateKey() {
+  return JSON.stringify({
+    tasks: state.tasks.map((task) => ({
+      id: task.id,
+      completed: task.completed,
+      reward: task.reward,
+      scope: task.scope,
+      assigneeId: task.assigneeId,
+      completedById: task.completedById,
+    })),
+    history: state.history.map((entry) => ({
+      id: entry.id,
+      reward: entry.reward,
+      profileId: entry.profileId,
+      title: entry.title,
+      timestamp: entry.timestamp,
+    })),
+  });
+}
+
+function buildHomePreviewMarkup(pageId) {
   if (pageId === "home") {
     const familyMetrics = getProfileMetrics("parent");
-    panel.innerHTML = `
+    const homeTemplateCount = pageConfigs.home.themes.length;
+    return `
       <div class="preview-card preview-home widget-surface">
         <div class="preview-home-copy">
           <p class="eyebrow">Storybook Hub</p>
           <h2>A whimsical launchpad for every family quest.</h2>
           <div class="preview-badges">
             <span>5 pages</span>
-            <span>3 templates each</span>
+            <span>${homeTemplateCount} templates each</span>
             <span>Fantasy home hub</span>
           </div>
         </div>
@@ -607,12 +693,11 @@ function renderHomePreview(pageId) {
         </div>
       </div>
     `;
-    return;
   }
 
   if (pageId === "parent") {
     const familyMetrics = getProfileMetrics("parent");
-    panel.innerHTML = `
+    return `
       <div class="preview-card widget-surface reveal rise-3">
         <p class="eyebrow">Parent Hall</p>
         <h2>Manage chores, rewards, and every board.</h2>
@@ -623,14 +708,13 @@ function renderHomePreview(pageId) {
         </div>
       </div>
     `;
-    return;
   }
 
   const profileId = pageConfigs[pageId].profileId;
   const profile = profileMap[profileId];
   const metrics = getProfileMetrics(profileId);
 
-  panel.innerHTML = `
+  return `
     <div class="preview-card widget-surface reveal rise-3">
       <p class="eyebrow">${profile.name}'s Realm</p>
       <h2>${profile.name}'s shared and assigned quests.</h2>
